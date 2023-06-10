@@ -1,0 +1,20 @@
+{
+  "name": "@liamtownsley/valorant-api",
+  "version": "1.1.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "tsc --build && cd dist && node index"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.4.0",
+    "cheerio": "^1.0.0-rc.12",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/uuid": "^9.0.1",
+    "typescript": "^5.0.4"
+  }
+}
