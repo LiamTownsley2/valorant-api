@@ -237,10 +237,3 @@ export async function getProfileInfo(usernames: string[], UID_NAMESPACE: string)
     }
     return _finalData;
 }
-
-(async () => {
-    const profile = await getProfileInfo(['PAIN#1VCT', 'Lord Gargamel#1000'], '4f8cc129-fc8e-47fd-ba7a-79638a875d2f') as any;
-    console.log(profile);
-    // console.log('Final: ', profile[0].current_season.rating);
-    // console.log('current_season ->', profile[0].current_season);
-})()
