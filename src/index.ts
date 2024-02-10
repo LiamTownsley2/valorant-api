@@ -103,40 +103,56 @@ function parseTrackerPage(username: string, UID_NAMESPACE: string, page_html: st
 
     const ranks: UserRank[] = [];
     let isRanked = false;
-    $('div.rating-entry').each((index, el) => {
+    $('div.rating-entry > div.rating-entry__rank > div.flex-row > div.rating-entry__rank-info').each((index, el) => {
+        const $element = $(el);
 
-        if (index == 0) { // IF CURRENT RANK
-            let name = $(el).find('div.rating-entry__rank-info > div.label').text().trim() as RankType;
-            let mmr;
-            if (name.toLowerCase() == 'rating') { // IF NOT RATED
-                name = $(el).find('div.rating-entry__rank-info > div.value').text().trim() as RankType;
-                mmr = undefined;
-            } else {
-                isRanked = true;
-                mmr = $(el).find('div.rating-entry__rank-info > div.value > span.mmr').text().trim();
-            }
-            ranks.push({ name, ranking: mmr });
-        } else if (index == 1) { // IF PEAK RANK
-            let name = $(el).find('div.rating-entry__rank-info > div.value').text().replace(/\d+RR/g, '').trim() as RankType;
-            let rank;
-            if(name.toLowerCase().startsWith('immortal') || name.toLowerCase().startsWith('radiant'))  { // IF RATED
-                rank = $(el).find('div.rating-entry__rank-info > div.value > span.mmr').text().trim()
-            } else {
-                rank = undefined;
-            }
-            ranks.push({ name, ranking: rank })
-        }
+        let name: any = $element.find('div.value').text().replace(/\d+(?:,\d+)*RR/g, '').trim() as RankType;
+        if (name == '') name = undefined;
+        if (!name) name = $element.find('div.label').text().trim() as RankType;
+        
+        let mmr: any = $element.find('div.value').text().replace(name, '').trim();
+        if (!mmr || mmr == '') mmr = undefined;
+        
+        console.log({ name, mmr });
+        ranks.push({ name, ranking: mmr });
+
+        // if (index == 0) { // IF CURRENT RANK
+        //     let name = $element.find('div.label').text().replace(/\d+RR/g, '').trim() as RankType;
+        //     let mmr;
+        //     if (name.toLowerCase() == 'rating') { // IF NOT RATED
+        //         name = $element.find('div.value').text().trim() as RankType;
+        //         mmr = undefined;
+        //     } else {
+        //         isRanked = true;
+        //         mmr = $element.find('span.mmr').text().trim();
+        //     }
+        //     ranks.push({ name, ranking: mmr });
+        // } else if (index == 1) { // IF PEAK RANK
+        //     let name = $element.find('div.value').text().replace(/\d+RR/g, '').trim() as RankType;
+        //     let rank;
+        //     if (name.toLowerCase().startsWith('immortal') || name.toLowerCase().startsWith('radiant')) { // IF RATED
+        //         rank = $element.find('span.mmr').text().trim()
+        //     } else {
+        //         rank = undefined;
+        //     }
+        //     ranks.push({ name, ranking: rank })
+        // }
     });
 
     if (!ranks) throw Error('Unable to gather all information.');
 
     const [trackerScore, trackerScoreMax] = $('.score__container > div.score__text > div.value').text().split('/').map(x => x.trim());
 
-    const topAgentRow = $(".top-characters > div.st > div.st-content > div.st-content__category");
+    const topAgentRow = $("#app > div.trn-wrapper > div.trn-container > div > main > div.content.no-card-margin > div.site-container.trn-grid.trn-grid--vertical.trn-grid--small > div.trn-grid.container > div.area-main > div.top-agents.area-top-agents > div > div > div.st-content > div");
     const items = topAgentRow.find('div.st-content__item');
     const top_agents: AgentData[] = [];
     items.each((index, element) => {
-        const _info = $(element).find('div.info > div.value').toArray().map(x => x.attribs['set']);
+        const $element = $(element);
+        const _info = $element
+            .find('div.value')
+            .toArray()
+            .map(x => $(x).text());
+
         if (!_info) throw Error('Unable to gather all information.');
         top_agents[index] = {
             name: _info[0],
@@ -221,3 +237,10 @@ export async function getProfileInfo(usernames: string[], UID_NAMESPACE: string)
     }
     return _finalData;
 }
+
+(async () => {
+    const profile = await getProfileInfo(['PAIN#1VCT', 'Lord Gargamel#1000'], '4f8cc129-fc8e-47fd-ba7a-79638a875d2f') as any;
+    console.log(profile);
+    // console.log('Final: ', profile[0].current_season.rating);
+    // console.log('current_season ->', profile[0].current_season);
+})()
